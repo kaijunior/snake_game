@@ -1,4 +1,5 @@
 # Snake Monster Eater
+https://kaijunior.github.io/snake_game/snake_game.html
 
 This is a simple snake game implemented using HTML5 and JavaScript. The game follows the traditional snake game mechanics with some additional features.
 
@@ -14,7 +15,7 @@ In this game, you control a snake on a confined grid, and the goal is to grow yo
 - The current length of the snake is also displayed on the top right corner of the screen.
 
 ## Installation
-
+- Play online at https://kaijunior.github.io/snake_game/snake_game.html
 - Clone or download this repository.
 - Open the HTML file in a web browser to start the game.
 
