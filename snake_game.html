@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <div id="score" style="position: absolute; right: 20px; top: 20px;"></div>
+        <div id="timer" style="position: absolute; right: 20px; top: 60px;"></div>
+        <canvas id="game" width="400" height="400"></canvas>
+        <script>
+            var canvas = document.getElementById('game');
+            var context = canvas.getContext('2d');
+            
+            var box = 20;
+            var snake = [];
+            snake[0] = { x: box, y: box };
+
+            var monster = {
+                x: Math.floor(Math.random() * 15 + 1) * box,
+                y: Math.floor(Math.random() * 15 + 1) * box,
+            };
+
+            var blocks = [];
+
+            var direction;
+            var timeLimit = 120; // Time limit of 2 minutes
+            
+            document.addEventListener('keydown', directionControl);
+            
+            function directionControl(event) {
+                if (event.keyCode == 37 && direction != 'right') direction = 'left';
+                else if (event.keyCode == 38 && direction != 'down') direction = 'up';
+                else if (event.keyCode == 39 && direction != 'left') direction = 'right';
+                else if (event.keyCode == 40 && direction != 'up') direction = 'down';
+            }
+
+            function spawnBlock() {
+                var block = {
+                    x: Math.floor(Math.random() * 15 + 1) * box,
+                    y: Math.floor(Math.random() * 15 + 1) * box,
+                };
+                blocks.push(block);
+            }
+
+            setInterval(spawnBlock, 5000);  // Spawn a new block every 5 seconds
+            
+            function updateScore() {
+                document.getElementById('score').innerHTML = 'Length: ' + snake.length;
+            }
+
+            function updateTimer() {
+                document.getElementById('timer').innerHTML = 'Time: ' + timeLimit + 's';
+                if (timeLimit <= 0) {
+                    clearInterval(game);
+                    alert('Game Over');
+                }
+                timeLimit--;
+            }
+
+            setInterval(updateTimer, 1000);  // Update the timer every second
+            
+            function draw() {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                
+                for (var i = 0; i < snake.length; i++) {
+                    context.fillStyle = (i == 0) ? 'green' : 'white';
+                    context.fillRect(snake[i].x, snake[i].y, box, box);
+                    
+                    context.strokeStyle = 'red';
+                    context.strokeRect(snake[i].x, snake[i].y, box, box);
+                }
+                
+                context.fillStyle = 'red';
+                context.fillRect(monster.x, monster.y, box, box);
+                
+                for (var i = 0; i < blocks.length; i++) {
+                    context.fillStyle = 'blue';
+                    context.fillRect(blocks[i].x, blocks[i].y, box, box);
+                }
+                
+                var snakeX = snake[0].x;
+                var snakeY = snake[0].y;
+                
+                if (direction == 'right') snakeX += box;
+                if (direction == 'left') snakeX -= box;
+                if (direction == 'up') snakeY -= box;
+                if (direction == 'down') snakeY += box;
+                
+                // Periodic boundary conditions
+                if (snakeX >= canvas.width) snakeX = 0;
+                if (snakeY >= canvas.height) snakeY = 0;
+                if (snakeX < 0) snakeX = canvas.width - box;
+                if (snakeY < 0) snakeY = canvas.height - box;
+                
+                if (snakeX == monster.x && snakeY == monster.y) {
+                    monster = {
+                        x: Math.floor(Math.random() * 15 + 1) * box,
+                        y: Math.floor(Math.random() * 15 + 1) * box,
+                    };
+                    snake.unshift({ x: snakeX, y: snakeY }); // Snake grows when eats monster
+                } else {
+                    var blockHit = false;
+                    for (var i = 0; i < blocks.length; i++) {
+                        if (snakeX == blocks[i].x && snakeY == blocks[i].y) {
+                            snake.pop(); // Snake shrinks when hits block
+                            blocks.splice(i, 1); // Remove block after hit
+                            blockHit = true;
+                            break;
+                        }
+                    }
+                    if (!blockHit) {
+                        var tail = snake.pop(); // Remove tail
+                        snake.unshift({ x: snakeX, y: snakeY }); // New head position
+                    }
+                }
+                updateScore();
+            }
+            
+            var game = setInterval(draw, 100);
+        </script>
+    </body>
+</html>
